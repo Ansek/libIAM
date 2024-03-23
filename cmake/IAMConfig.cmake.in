@@ -1,0 +1,7 @@
+set(IAM_VERSION x.y.z)
+
+@PACKAGE_INIT@
+
+include("${PACKAGE_PREFIX_DIR}/lib/cmake/iam/IAMTargets.cmake")
+
+check_required_components(IAM)

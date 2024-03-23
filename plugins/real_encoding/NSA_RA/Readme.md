@@ -1,0 +1,1 @@
+# Negative Selection Algorithm based on Rectangular Areas (NSA_RA)

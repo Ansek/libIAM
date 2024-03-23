@@ -1,2 +1,3 @@
-# libIAM
-Immune Algorithm Manager library
+# libIAM (Immune Algorithm Manager library) 
+**libIAM** – библиотека для управления различными модификациями иммунных алгоритмов, поставляемых в виде динамических библиотек.  
+Преимущественно рассматриваются алгоритмы отрицательного отбора (АОО, NSA, Negative Selection Algorithm) с вещественным и бинарным кодированием с целью обнаружения вторжений в трафике сети и построения сетевой системы обнаружения вторжения (ССОВ, NIDS, Network Intrusion Detection Systems).

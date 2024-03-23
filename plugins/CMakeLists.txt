@@ -1,0 +1,2 @@
+add_subdirectory(binary_encoding/NSA_RS)
+add_subdirectory(real_encoding/NSA_RA)
