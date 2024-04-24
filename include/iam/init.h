@@ -5,18 +5,29 @@
     \brief Инициализации модулей libIAM.
 
     Работа libIAM начинается с вызова #iam_init() и завершается при вызове
-    #iam_exit().     
+    #iam_exit(). C помощью #iam_reg_init и #iam_reg_exit можно зарегистрировать
+    функции как плагины (например, для статических библиотек).
 */
 #ifndef __IAM_INIT_H__
 #define __IAM_INIT_H__
 
+#include "iam.h"
+
 /*! Запускает модули libIAM.
     \return 0 - все модули libIAM успешно запущены.
 */
-int iam_init();
+IAM_API iam_init_status_t iam_init(void);
 
 /*! Освобождает все ресурсы связанные с libIAM.
 */
-void iam_exit();
+IAM_API void iam_exit(void);
+
+/*! Регистрация функции для инициализации статического плагина.
+*/
+IAM_API int iam_register_init(iam_init_fn init);
+
+/*! Регистрация функции для освобождения ресурсов статического плагина.
+*/
+IAM_API void iam_register_exit(iam_exit_fn exit);
 
 #endif

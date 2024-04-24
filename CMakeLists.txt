@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 project(IAM
     VERSION 0.1
-    DESCRIPTION "Immune Algorithm Manager Library"
+    DESCRIPTION "Immune Algorithm Manager library"
     LANGUAGES C)
 
 option(IAM_INCLUDE_PLUGINS "Build or install IAM plugins" OFF)
 option(IAM_BUILD_EXAMPLES "Build IAM examples" OFF)
+option(IAM_BUILD_TESTS "Build IAM tests" OFF)
 
 if (NOT DEFINED IAM_PLUGINS_DIR)
     set(IAM_PLUGINS_DIR{PATH} "plugins")
@@ -15,21 +16,34 @@ add_library(IAM SHARED)
 add_library(IAM::IAM ALIAS IAM)
 
 target_compile_definitions(IAM PRIVATE "IAM_PLUGINS_DIR=\"${IAM_PLUGINS_DIR}\"")
+target_compile_definitions(IAM PRIVATE "IAM_CONSOLE_LOG=1")
 
 set(public_headers
+    include/iam/algorithm.h
     include/iam/iam.h
     include/iam/init.h
     include/iam/logger.h
-    include/iam/plugin.h)
+    include/iam/parameter.h
+    include/iam/plugin.h
+    include/iam/setting.h)
 set(sources
     ${public_headers}
     src/os/os.h
-    src/iam.c
+    src/algorithm_manager.h
+    src/algorithm_manager.c
+    src/common.h
+    src/init.c
     src/list.h
     src/list.c
-    src/logger.c
+    src/logger_manager.h
+    src/logger_manager.c
+    src/memory.h
+    src/parameter.c
     src/plugin_manager.h
     src/plugin_manager.c
+    src/setting_manager.c
+    src/setting_manager.c
+    src/setting.c
     src/version.h)
 
 if (WIN32)
@@ -80,4 +94,9 @@ endif()
 
 if (IAM_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if(IAM_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
 endif()

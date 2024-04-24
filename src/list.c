@@ -1,5 +1,7 @@
+// Copyright (c) 2024 Alexander Sekunov 
+// License: http://opensource.org/licenses/MIT
+
 #include "list.h"
-#include <stdlib.h>
 
 void iam__list_init(iam__list_t *list) {
     list->head = NULL;
@@ -7,8 +9,10 @@ void iam__list_init(iam__list_t *list) {
     list->count = 0;
 }
 
-void iam__list_append(iam__list_t *list, void *data) {
+int iam__list_append(iam__list_t *list, void *data) {
     iam__node_t *p = IAM__NEW(node);
+    if (p == NULL)
+        return 1;
     p->data = data;
     p->next = NULL;
     if (list->head == NULL)
@@ -17,15 +21,18 @@ void iam__list_append(iam__list_t *list, void *data) {
         list->tail->next = p;
     list->tail = p;
     list->count++;
+    return 0;
 }
 
 void iam__list_remove(iam__list_t *list, void *data) {
-    iam__node_t *p, *tmp;
+    iam__node_t *p, *tmp = NULL;
     if (list->head == NULL)
         return;
     if (list->head->data == data) {
         tmp = list->head;
         list->head = list->head->next;
+        if (list->head == NULL)
+            list->tail = NULL;
     } else {
         IAM__FOREACH(p, *list)
             if (p->next != NULL && p->next->data == data) {
@@ -33,11 +40,13 @@ void iam__list_remove(iam__list_t *list, void *data) {
                 p->next = p->next->next;
                 break;
             }
+        if (list->tail == tmp)
+            list->tail = p;
     }
-    if (list->tail == tmp)
-        list->tail == NULL;
-    free(tmp);
-    list->count--;
+    if (tmp) {
+        iam__free(tmp);
+        list->count--;
+    }
 }
 
 #define IAM__FOREACH_DEL(var, tmp, list)    \
@@ -46,7 +55,7 @@ void iam__list_remove(iam__list_t *list, void *data) {
         tmp = var;                          \
         var != NULL;                        \
         var = var->next,                    \
-        free(tmp),                          \
+        iam__free(tmp),                     \
         tmp = var                           \
     )
 
@@ -55,16 +64,22 @@ void iam__list_clear(iam__list_t *list) {
     iam__list_init(list);
 }
 
+void iam__list_clear_act(iam__list_t *list, action_fn act) {
+    IAM__FOREACH_DEL(p, tmp, list)
+        act(p->data);
+    iam__list_init(list);
+}
+
 void iam__list_free(iam__list_t *list) {
     IAM__FOREACH_DEL(p, tmp, list)
-        free(p->data);
+        iam__free(p->data);
     iam__list_init(list);
 }
 
 void iam__list_free_act(iam__list_t *list, action_fn act) {
     IAM__FOREACH_DEL(p, tmp, list) {
         act(p->data);
-        free(p->data);
+        iam__free(p->data);
     }
     iam__list_init(list);
 }

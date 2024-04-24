@@ -1,4 +1,3 @@
-
 // Copyright (c) 2024 Alexander Sekunov 
 // License: http://opensource.org/licenses/MIT
 
@@ -11,6 +10,7 @@
 #define __IAM_LOGGER_H__
 
 #include "iam/iam.h"
+#include <time.h>
 
 /*! Определение уровней логирования.
 */
@@ -23,6 +23,15 @@ typedef enum {
     IAM_ERROR   = 0x10, //!< Ошибка, не нарушающая работу системы в целом.
     IAM_FATAL   = 0x20  //!< Ошибка, после которой работа системы невозможна.
 } iam_logger_level_t;
+
+typedef struct {
+    time_t time;
+    iam_id_t *handle;
+    iam_logger_level_t level;
+    const char *msg;
+} iam_log_t;
+
+typedef void (*iam_log_save_fn)(iam_log_t *log);
 
 #ifndef IAM_LOG_LEVELS
     #ifdef IAM_RELEASE
@@ -39,7 +48,7 @@ typedef enum {
     \param level  Уровень сообщения.
     \param msg    Текст сообщения.    
 */
-extern void iam_logger_puts(iam_id_t *handle, iam_logger_level_t level,
+IAM_API void iam_logger_puts(iam_id_t *handle, iam_logger_level_t level,
     const char* msg);
 
 /*! Вывод простого сообщения в лог.
@@ -47,7 +56,17 @@ extern void iam_logger_puts(iam_id_t *handle, iam_logger_level_t level,
     \param level  Уровень сообщения.
     \param msg    Текст сообщения.
 */
-extern void iam_logger_putf(iam_id_t *handle, iam_logger_level_t level,
+IAM_API void iam_logger_putf(iam_id_t *handle, iam_logger_level_t level,
     const char* msg, ...);
+
+/*! Регистрирует функцию для сохранения лога.
+    \param handle Идентификатор модуля.
+    \param filter Фильтр уровней сообщения.
+    \param msg    Текст сообщения.
+    \return 0 - инициализация прошла успешно, иначе не хватило памяти:
+            1 - для структуры данных, 2 - для добавления в список 
+*/
+IAM_API int iam_logger_reg_save(iam_id_t *handle, iam_logger_level_t filter,
+    iam_log_save_fn save);
 
 #endif

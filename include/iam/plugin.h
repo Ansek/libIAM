@@ -4,59 +4,37 @@
 /*! \file iam/plugin.h
     \brief Инициализация плагинов в libIAM.
 
-     Для регистрации плагина требуется объявить переменную структуры
-     #iam_plugin_t info, чтобы libIAM мог извлечь информацию о плагине.
-     Помимо этого, нужно объявить функцию #iam_plugin_init, внутри которой 
-     следуют зарегистрировать пользовательские функции. Объявление функции
-     #iam_plugin_exit не является обязательной.
-     
+    Для регистрации плагина требуется:
+    - реализовать функцию вида int init();
+    - для регистрации динамических библиотек имя функции передаётся в макрос
+    IAM_PLUGIN_DYNAMIC_INIT(init) который создаёт новую функцию с именем 
+    iam_plugin_init, которую будет искать менеджер libIAM;
+    - для регистрации статических библиотек нужно создать отдельный заголовочный 
+    файл для подключения во внешнюю программу и передать имя в функцию
+    #iam_register_init (iam/init.h);
+    - после этого надо вызвать функцию #iam_plugin_register передав в неё
+    значение структуры #iam_metadata_t, чтобы получить идентификатор текущего
+    плагина, который используется в вызовах остальных модулей системы.
+
+    Функция void exit() является необязательной и служит для освобождения 
+    внутренних ресурсов плагина. Для регистрации существуют аналогичные функции
+    IAM_PLUGIN_DYNAMIC_EXIT и iam_register_exit.     
 */
 #ifndef __IAM_PLUGIN_H__
 #define __IAM_PLUGIN_H__
 
 #include "iam.h"
-#include <stddef.h>
 
-/* Структура и функции для регистрации плагина */
+#ifdef IAM_STATIC_PLUGIN
+    #define IAM_PLUGIN_DYNAMIC_INIT(fn) /* empty */
+    #define IAM_PLUGIN_DYNAMIC_EXIT(fn) /* empty */
+#else
+    #define IAM_PLUGIN_DYNAMIC_INIT(fn) \
+        IAM_PLUGIN int iam_plugin_init(void) { return fn(); }
+    #define IAM_PLUGIN_DYNAMIC_EXIT(fn) \
+        IAM_PLUGIN void iam_plugin_exit(void) { fn(); }
+#endif
 
-/*! Инициализирует ресурсы плагина и их регистрации в libIAM.
-    \param handle Идентификатор плагина.
-    \return 0 - инициализация плагина прошло успешно.
-*/
-iam_id_t *iam_plugin_init(void);
-
-/*! Освобождает ресурсы плагина
-*/
-void iam_plugin_exit();
-
-/* Функции для взаимодействия с libIAM */
-
-/*! Обработчик для двоичных данных.
-    \param handle Идентификатор плагина.
-    \param data Набор байт.
-    \param size Количество байт.
-*/
-typedef void (*iam_hook_binary_fn)
-     (iam_id_t *handle, const char* data, size_t size);
-
-/*! Обработчик для k-мерного вещественного вектора.
-    \param handle Идентификатор плагина.
-    \param vector Вектор данных.
-    \param k Количество измерений вектора.
-*/
-typedef void (*iam_hook_real_fn)
-     (iam_id_t *handle, const float* vector, size_t k);
-
-/*! Регистрирует обратный вызов для алгоритмов с двоичным кодированием.
-    \param handle Идентификатор плагина.
-    \param fn Функция вызова.
-*/
-extern int iam_plugin_register_balg(iam_id_t *handle, iam_hook_binary_fn fn);
-
-/*! Регистрирует обратный вызов для алгоритмов с вещественным кодированием.
-    \param handle Идентификатор плагина.
-    \param fn Функция вызова.
-*/
-extern int iam_plugin_register_ralg(iam_id_t *handle, iam_hook_real_fn fn);
+IAM_API iam_id_t *iam_plugin_register(iam_metadata_t *info);
 
 #endif

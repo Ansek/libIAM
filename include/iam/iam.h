@@ -16,10 +16,27 @@ typedef const struct {
      const char *version;       //!< Версия.
      const char *description;   //!< Дополнительное описание.
      const char *author;        //!< Автор.
+} iam_metadata_t;
+
+/*! \brief Идентификатор модуля.
+*/
+typedef struct {
+    iam_metadata_t *info;    
 } iam_id_t;
 
-typedef iam_id_t *(*iam_init_fn)(void);
+typedef int (*iam_init_fn)(void);
 typedef void (*iam_exit_fn)(void);
+
+/*! \brief Определяет состояние после инициализации модулей библиотеки.
+*/
+typedef enum {
+    IAM_SUCCESS_INIT,           //!< Все модули успешно инициализированы
+    IAM_PLUGIN_DIR_NOT_FOUND,   //!< Не найден каталог плагинов
+    IAM_PLUGIN_OPEN_ERROR,      //!< Ошибка при попытке открытия библиотеки
+    IAM_PLUGIN_INIT_NOT_FOUND,  //!< Не удалось найти функцию iam_plugin_init
+    IAM_PLUGIN_INIT_FAILED,     //!< Какой-то из плагинов не был инициализирован
+    IAM_OUT_OF_MEMORY           //!< Не хватило памяти на инициализацию
+} iam_init_status_t; 
 
 #if defined(IAM_SHARED_API) && defined(IAM_STATIC_API)
     #error "The action is not defined (IAM_SHARED_API && IAM_STATIC_API)."
@@ -38,8 +55,7 @@ typedef void (*iam_exit_fn)(void);
         #endif 
     #endif
     #ifdef IAM_SHARED_PLUGIN
-        __declspec(dllexport) iam_id_t *iam_plugin_init(void);
-        __declspec(dllexport) void iam_plugin_exit(void);
+        #define IAM_PLUGIN __declspec(dllexport)
     #endif
 #endif
 
@@ -47,14 +63,8 @@ typedef void (*iam_exit_fn)(void);
     #define IAM_API /* empty */
 #endif
 
-#ifdef IAM_STATIC_PLUGIN
-    #define IAM_PLUGIN_DYNAMIC_INIT(fn) /* empty */
-    #define IAM_PLUGIN_DYNAMIC_EXIT(fn) /* empty */
-#else
-    #define IAM_PLUGIN_DYNAMIC_INIT(fn) \
-        iam_id_t *iam_plugin_init(void) { return fn(); }
-    #define IAM_PLUGIN_DYNAMIC_EXIT(fn) \
-        void iam_plugin_exit(void) { fn(); }
+#ifndef IAM_PLUGIN
+    #define IAM_PLUGIN /* empty */
 #endif
 
 #ifndef IAM_PLUGINS_DIR
@@ -68,7 +78,5 @@ typedef void (*iam_exit_fn)(void);
     #define IAM_PATH_CONCAT "%s/%s"
     #define IAM_SHARED_EXT ".so"
 #endif
-
-
 
 #endif

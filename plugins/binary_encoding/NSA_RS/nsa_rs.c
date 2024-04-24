@@ -2,23 +2,35 @@
 // License: http://opensource.org/licenses/MIT
 
 #include <iam/plugin.h>
+#include <iam/algorithm.h>
 #include <stdio.h>
 
-iam_id_t info = {
+static iam_metadata_t info = {
     .name = "NSA_RS",
     .version = "0.1",
     .description = "Negative Selection Algorithm based on Random Strings",
     .author = "Alexander Sekunov"
 };
 
-iam_id_t *iam_nsa_rs_init(void) {
-    puts("iam_nsa_rs_init");
-    return &info;
+static void generate(iam_id_t *handle, const char* data, size_t size) {
+    puts("NSA_RS.generate()");
 }
 
-void iam_nsa_rs_exit(void) {
-    puts("iam_nsa_rs_exit");
+static int analyze(iam_id_t *handle, const char* data, size_t size) {
+    puts("NSA_RS.analyze()");
+    return 0;
 }
 
-IAM_PLUGIN_DYNAMIC_INIT(iam_nsa_rs_init);
-IAM_PLUGIN_DYNAMIC_EXIT(iam_nsa_rs_exit);
+int nsa_rs_init(void) {
+    iam_id_t *id = iam_plugin_register(&info);
+    iam_binary_alg_t *ba = iam_algorithm_reg_binary(id);
+    iam_binary_alg_reg_generate(ba, generate);
+    iam_binary_alg_reg_analyze(ba, analyze);
+    return 0;
+}
+
+void nsa_rs_exit(void) {
+}
+
+IAM_PLUGIN_DYNAMIC_INIT(nsa_rs_init);
+IAM_PLUGIN_DYNAMIC_EXIT(nsa_rs_exit);

@@ -12,7 +12,7 @@ endif()
 
 add_library(NSA_RA SHARED)
 target_link_libraries(NSA_RA PUBLIC IAM)
-    
+
 set(sources
     nsa_ra.c)
 
