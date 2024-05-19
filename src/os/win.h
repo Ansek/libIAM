@@ -10,7 +10,7 @@ typedef struct HINSTANCE__ iam__lib_t;
 typedef struct {
     HANDLE dir;
     WIN32_FIND_DATA data;
-	const char* path;
+	const char *path;
 } iam__dir_t;
 typedef WIN32_FIND_DATA iam__finfo_t;
 

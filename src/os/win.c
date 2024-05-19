@@ -11,6 +11,8 @@ iam__dir_t *iam__dir_open(const char *name) {
     if (test == 0)   
         return NULL;
     dir = (iam__dir_t *)malloc(sizeof(iam__dir_t));
+    if (dir == NULL)
+        return NULL;
     dir->dir = NULL;
 	dir->path = name;
     return dir;
@@ -21,12 +23,14 @@ iam__lib_t *iam__lib_open(const char *name) {
 }
 
 iam__finfo_t *iam__dir_findfirst(iam__dir_t *dir) {
-    char* path;
+    char *path;
     size_t len;
     if (dir->dir != NULL)
         FindClose(dir->dir);
     len = strlen(dir->path) + 5;
     path = (char *)malloc(len);
+    if (path == NULL)
+        return NULL;
     strcpy(path, dir->path);
     strcat(path, "\\*.*");
     dir->dir = FindFirstFile(path, &dir->data);

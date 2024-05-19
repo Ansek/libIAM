@@ -16,40 +16,25 @@ add_library(IAM SHARED)
 add_library(IAM::IAM ALIAS IAM)
 
 target_compile_definitions(IAM PRIVATE "IAM_PLUGINS_DIR=\"${IAM_PLUGINS_DIR}\"")
-target_compile_definitions(IAM PRIVATE "IAM_CONSOLE_LOG=1")
+#target_compile_definitions(IAM PRIVATE "IAM_CONSOLE_LOG=1")
 
-set(public_headers
-    include/iam/algorithm.h
-    include/iam/iam.h
-    include/iam/init.h
-    include/iam/logger.h
-    include/iam/parameter.h
-    include/iam/plugin.h
-    include/iam/setting.h)
 set(sources
-    ${public_headers}
-    src/os/os.h
-    src/algorithm_manager.h
     src/algorithm_manager.c
-    src/common.h
+    src/info.c
     src/init.c
-    src/list.h
     src/list.c
-    src/logger_manager.h
     src/logger_manager.c
-    src/memory.h
     src/parameter.c
-    src/plugin_manager.h
     src/plugin_manager.c
     src/setting_manager.c
     src/setting_manager.c
     src/setting.c
-    src/version.h)
+    src/variable.c)
 
 if (WIN32)
-    list(APPEND sources src/os/win.h src/os/win.c)
+    list(APPEND sources src/os/win.c)
 else()
-    list(APPEND sources src/os/unix.h src/os/unix.c)
+    list(APPEND sources src/os/unix.c)
 endif()
 
 target_include_directories(IAM

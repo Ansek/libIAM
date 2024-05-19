@@ -19,6 +19,7 @@ typedef struct {
 
 typedef void (*action_fn)(void *data);
 
+#define IAM_D(type, var)((IAM_T(type) *)var->data)
 #define IAM__D(type, var)((IAM__T(type) *)var->data)
 
 #define IAM__FOREACH(var, list) for (   \

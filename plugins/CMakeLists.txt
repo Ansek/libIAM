@@ -1,3 +1,4 @@
 add_subdirectory(binary_encoding/NSA_RS)
 add_subdirectory(real_encoding/NSA_RA)
+add_subdirectory(storage/setting_json)
 add_subdirectory(storage/log_txt)

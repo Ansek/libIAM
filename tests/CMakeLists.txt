@@ -12,6 +12,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(unity)
 
+target_compile_definitions(unity PRIVATE "UNITY_INCLUDE_DOUBLE")
+target_compile_definitions(unity PRIVATE "UNITY_DOUBLE_PRECISION=1e-12f")
+
 FetchContent_Declare(
     fff
     GIT_REPOSITORY https://github.com/meekrosoft/fff.git
@@ -68,3 +71,10 @@ add_test_file(logger logger_src libs)
 set(plugin_src
     ../src/plugin_manager.c)
 add_test_file(plugin plugin_src mock_libs)
+
+set(setting_src
+    ../src/variable.c
+    ../src/setting.c
+    ../src/setting_manager.c)
+add_test_file(setting setting_src mock_libs)
+target_compile_definitions(iam_test_setting_app PRIVATE "UNITY_INCLUDE_DOUBLE")

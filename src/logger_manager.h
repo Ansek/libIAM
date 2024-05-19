@@ -14,8 +14,8 @@
 #endif
 
 typedef struct {
-    iam_id_t *handle;
-    iam_logger_level_t filter;
+    iam__module_t *id;
+    iam_logger_level filter;
     iam_log_save_fn save;
 } iam__log_store_t;
 

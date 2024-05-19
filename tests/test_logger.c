@@ -4,24 +4,33 @@
 #include <unity.h>
 #include "../src/logger_manager.h"
 
-iam_id_t handle;
-#define STORE_SIZE sizeof(iam__log_store_t)
-#define LOG_SIZE sizeof(iam_log_t)
-char sbuf[STORE_SIZE], lbuf[LOG_SIZE];
+iam_id_t id;
+iam_log_t lbuf;
+iam__log_store_t sbuf;
 
 extern char is_accumulation;
 extern iam__list_t iam__log_stores;
-extern iam_logger_level_t iam_logger_filter;
+extern iam_logger_level iam_logger_filter;
 
 FAKE_VOID_FUNC1(save, iam_log_t *);
 
 iam__log_store_t store = {
-	.handle = NULL,
+	.id = NULL,
 	.filter = 1,
 	.save = save
 };
 
-void print_three_message();
+void setUp() {}
+
+void tearDown() {}
+
+void print_three_message() {
+	IAM_RESET_APPEND(&lbuf, 0);
+	iam_logger_filter = 0;
+	iam_logger_puts(id, 1, "t1");
+	iam_logger_puts(id, 1, "t2");
+	iam_logger_puts(id, 1, "t3");
+}
 
 void test_LoggerPut_should_IsAccumulationLogs() {
 	is_accumulation = 1;
@@ -46,11 +55,9 @@ void test_LoggerPut_should_LogsSavedInStores() {
 
 void test_LoggerRegSave_should_ReturnNullIfObjectIsNull() {
 	int res;
-	RESET_FAKE(iam__malloc);
-	RESET_FAKE(iam__list_append);
+	IAM_RESET_APPEND(NULL, 0);
 
-	iam__malloc_fake.return_val = NULL;
-	res = iam_logger_reg_save(&handle, IAM_ALL, save);
+	res = iam_logger_reg_save(id, IAM_ALL, save);
 
 	TEST_ASSERT_EQUAL_INT(1, res);
 	TEST_ASSERT_EQUAL_INT(1, iam__malloc_fake.call_count);
@@ -59,12 +66,9 @@ void test_LoggerRegSave_should_ReturnNullIfObjectIsNull() {
 
 void test_LoggerRegSave_should_ReturnNullIfNodeIsNull() {
 	int res;
-	RESET_FAKE(iam__malloc);
-	RESET_FAKE(iam__list_append);
+	IAM_RESET_APPEND(&sbuf, 1);
 
-	iam__malloc_fake.return_val = sbuf;
-	iam__list_append_fake.return_val = 1;
-	res = iam_logger_reg_save(&handle, IAM_ALL, save);
+	res = iam_logger_reg_save(id, IAM_ALL, save);
 
 	TEST_ASSERT_EQUAL_INT(2, res);
 	TEST_ASSERT_EQUAL_INT(1, iam__malloc_fake.call_count);
@@ -73,28 +77,12 @@ void test_LoggerRegSave_should_ReturnNullIfNodeIsNull() {
 
 void test_LoggerRegSave_should_FuncAdded() {
 	int res;
+	IAM_RESET_APPEND(&sbuf, 0);
 	is_accumulation = 1;
 
-	iam__malloc_fake.return_val = sbuf;
-	iam__list_append_fake.return_val = 0;
-	res = iam_logger_reg_save(&handle, IAM_ALL, save);
+	res = iam_logger_reg_save(id, IAM_ALL, save);
 
 	TEST_ASSERT_EQUAL_INT(0, res);
-}
-
-void setUp() {}
-
-void tearDown() {}
-
-void print_three_message() {
-	RESET_FAKE(iam__malloc);
-	RESET_FAKE(iam__list_append);
-	iam_logger_filter = 0;
-
-	iam__malloc_fake.return_val = lbuf;
-	iam_logger_puts(&handle, 1, "t1");
-	iam_logger_puts(&handle, 1, "t2");
-	iam_logger_puts(&handle, 1, "t3");
 }
 
 int main() {

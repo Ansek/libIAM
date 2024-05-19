@@ -22,12 +22,12 @@ typedef enum {
     IAM_WARN    = 0x08, //!< Предупреждение.
     IAM_ERROR   = 0x10, //!< Ошибка, не нарушающая работу системы в целом.
     IAM_FATAL   = 0x20  //!< Ошибка, после которой работа системы невозможна.
-} iam_logger_level_t;
+} iam_logger_level;
 
 typedef struct {
-    time_t time;
-    iam_id_t *handle;
-    iam_logger_level_t level;
+    iam_id_t id;
+    time_t time;    
+    iam_logger_level level;
     const char *msg;
 } iam_log_t;
 
@@ -44,29 +44,32 @@ typedef void (*iam_log_save_fn)(iam_log_t *log);
 #define IAM_LOG_MAX_SIZE 512
 
 /*! Вывод простого сообщения в лог.
-    \param handle Идентификатор модуля.
+    \param id Идентификатор модуля.
     \param level  Уровень сообщения.
     \param msg    Текст сообщения.    
 */
-IAM_API void iam_logger_puts(iam_id_t *handle, iam_logger_level_t level,
-    const char* msg);
+IAM_API void iam_logger_puts(iam_id_t id, iam_logger_level level,
+    const char *msg);
 
 /*! Вывод простого сообщения в лог.
-    \param handle Идентификатор модуля.
+    \param id Идентификатор модуля.
     \param level  Уровень сообщения.
     \param msg    Текст сообщения.
 */
-IAM_API void iam_logger_putf(iam_id_t *handle, iam_logger_level_t level,
-    const char* msg, ...);
+IAM_API void iam_logger_putf(iam_id_t id, iam_logger_level level,
+    const char *msg, ...);
 
 /*! Регистрирует функцию для сохранения лога.
-    \param handle Идентификатор модуля.
+    \param id Идентификатор модуля.
     \param filter Фильтр уровней сообщения.
     \param msg    Текст сообщения.
     \return 0 - инициализация прошла успешно, иначе не хватило памяти:
             1 - для структуры данных, 2 - для добавления в список 
 */
-IAM_API int iam_logger_reg_save(iam_id_t *handle, iam_logger_level_t filter,
+IAM_API int iam_logger_reg_save(iam_id_t id, iam_logger_level filter,
     iam_log_save_fn save);
+
+#define IAM_LOG_ERR(f, ...) \
+    iam_logger_putf(IAM_ID_NAME, IAM_ERROR, f, __VA_ARGS__);
 
 #endif

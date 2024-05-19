@@ -19,65 +19,65 @@ void iam__algorithm_manager_exit(void) {
     iam__list_free_act(&iam__real_algs, iam__real_algs_free);
 }
 
-iam_binary_alg_t *iam_algorithm_reg_binary(iam_id_t *handle) {
+iam_binary_alg_t *iam_algorithm_reg_binary(iam_id_t id) {
     int res;
-    iam__binary_alg_t* alg = IAM__NEW(binary_alg);
+    iam__binary_alg_t *alg = IAM__NEW(binary_alg);
     if (alg == NULL)
         return NULL;
-    alg->handle = handle;
+    alg->id = (iam__module_t *)id;
     alg->binary.analyze = NULL;
     alg->binary.generate = NULL;
     iam__list_init(&alg->params);
     res = iam__list_append(&iam__binary_algs, alg);
     if (res == 1)
         return NULL;
-	iam_logger_puts(handle, IAM_TRACE,
+	iam_logger_puts(id, IAM_TRACE,
 		"Registered a binary algorithm");
     return (iam_binary_alg_t *)alg;
 }
 
-iam_real_alg_t *iam_algorithm_reg_real(iam_id_t *handle) {
+iam_real_alg_t *iam_algorithm_reg_real(iam_id_t id) {
     int res;
-    iam__real_alg_t* alg = IAM__NEW(real_alg);
+    iam__real_alg_t *alg = IAM__NEW(real_alg);
     if (alg == NULL)
         return NULL;
-    alg->handle = handle;
+    alg->id = (iam__module_t *)id;
     alg->real.analyze = NULL;
     alg->real.generate = NULL;
     iam__list_init(&alg->params);
     res = iam__list_append(&iam__real_algs, alg);
     if (res == 1)
         return NULL;
-	iam_logger_puts(handle, IAM_TRACE,
+	iam_logger_puts(id, IAM_TRACE,
 		"Registered a real algorithm");
     return (iam_real_alg_t *)alg;
 }
 
-void iam_binary_alg_reg_generate(iam_binary_alg_t *handle,
+void iam_binary_alg_reg_generate(iam_binary_alg_t *alg,
     iam_binary_generate_fn fn) {
-    handle->generate = fn;
-	iam_logger_puts(IAM__HANDLE(binary_alg), IAM_TRACE,
+    alg->generate = fn;
+	iam_logger_puts(IAM__ID(binary_alg, alg), IAM_TRACE,
 		"Added generation function (binary)");  
 }
 
-void iam_binary_alg_reg_analyze(iam_binary_alg_t *handle,
+void iam_binary_alg_reg_analyze(iam_binary_alg_t *alg,
     iam_binary_analyze_fn fn) {
-    handle->analyze = fn;
-	iam_logger_puts(IAM__HANDLE(binary_alg), IAM_TRACE,
+    alg->analyze = fn;
+	iam_logger_puts(IAM__ID(binary_alg, alg), IAM_TRACE,
 		"Added analysis function (binary)"); 
 }
 
-void iam_real_alg_reg_generate(iam_real_alg_t *handle,
+void iam_real_alg_reg_generate(iam_real_alg_t *alg,
     iam_real_generate_fn fn) {
-    handle->generate = fn;
-	iam_logger_puts(IAM__HANDLE(real_alg), IAM_TRACE,
+    alg->generate = fn;
+	iam_logger_puts(IAM__ID(real_alg, alg), IAM_TRACE,
 		"Added generation function (real)"); 
 }
 
-IAM_API void iam_real_alg_reg_analyze(iam_real_alg_t *handle,
+IAM_API void iam_real_alg_reg_analyze(iam_real_alg_t *alg,
     iam_real_analyze_fn fn) {
-    handle->analyze = fn;
-	iam_logger_puts(IAM__HANDLE(real_alg), IAM_TRACE,
+    alg->analyze = fn;
+	iam_logger_puts(IAM__ID(real_alg, alg), IAM_TRACE,
 		"Added analysis function (real)"); 
 }
 

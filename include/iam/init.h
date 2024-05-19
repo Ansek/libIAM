@@ -16,15 +16,15 @@
 /*! Запускает модули libIAM.
     \return 0 - все модули libIAM успешно запущены.
 */
-IAM_API iam_init_status_t iam_init(void);
+IAM_API iam_init_status iam_init(void);
 
 /*! Освобождает все ресурсы связанные с libIAM.
 */
 IAM_API void iam_exit(void);
 
-/*! Регистрация функции для инициализации статического плагина.
+/*! Регистрация метаданных и функции для инициализации статического плагина.
 */
-IAM_API int iam_register_init(iam_init_fn init);
+IAM_API int iam_register_init(iam_metadata_t info, iam_init_fn init);
 
 /*! Регистрация функции для освобождения ресурсов статического плагина.
 */

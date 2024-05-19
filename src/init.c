@@ -6,6 +6,7 @@
 #include "setting_manager.h"
 #include "logger_manager.h"
 #include "plugin_manager.h"
+#include "version.h"
 
 iam_metadata_t iam__api_md = {
     .name = IAM_INFO_NAME,
@@ -13,10 +14,11 @@ iam_metadata_t iam__api_md = {
     .description = IAM_INFO_DESCRIPTION,
     .author = IAM_INFO_AUTHOR
 };
-iam_id_t iam__api = { .info = &iam__api_md };
+iam__module_t iam_api_m = { .info = &iam__api_md };
+iam_id_t iam__api = (iam_id_t)&iam_api_m;
 
-iam_init_status_t iam_init(void) {
-    iam_init_status_t res;
+iam_init_status iam_init(void) {
+    iam_init_status res;
     iam__setting_manager_init();
     iam__logger_manager_init();
     iam__algorithm_manager_init();

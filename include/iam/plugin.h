@@ -29,10 +29,13 @@
     #define IAM_PLUGIN_DYNAMIC_INIT(fn) /* empty */
     #define IAM_PLUGIN_DYNAMIC_EXIT(fn) /* empty */
 #else
-    #define IAM_PLUGIN_DYNAMIC_INIT(fn) \
-        IAM_PLUGIN int iam_plugin_init(void) { return fn(); }
+    #define IAM_PLUGIN_DYNAMIC_INIT(inf, fn)            \
+        IAM_PLUGIN iam_init_t iam_plugin_init(void) {   \
+            iam_init_t I = { .info = &inf, .call = fn };\
+            return I;                                   \
+        }
     #define IAM_PLUGIN_DYNAMIC_EXIT(fn) \
-        IAM_PLUGIN void iam_plugin_exit(void) { fn(); }
+        IAM_PLUGIN iam_exit_fn iam_plugin_exit(void) { return fn; }
 #endif
 
 IAM_API iam_id_t *iam_plugin_register(iam_metadata_t *info);

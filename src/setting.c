@@ -3,60 +3,68 @@
 
 #include "setting_manager.h"
 
-typedef struct {
-    iam_setting_t info;
-    void *value;
-} iam__setting_t;
-
-void iam_setting_rewind(iam_id_t *handle) {
-    iam__module_t *module = (iam__module_t *)handle;
+void iam_setting_rewind(iam_id_t id) {
+    iam__module_t *module = (iam__module_t *)id;
     module->current_setting = module->settings.head;    
 }
 
-iam_setting_t *iam_setting_read(iam_id_t *handle) {
-    iam__module_t *module = (iam__module_t *)handle;
+iam_setting_t *iam_setting_read(iam_id_t id) {
+    iam_setting_t *s;
+    iam__module_t *module = (iam__module_t *)id;
     if (module->current_setting == NULL)
         return NULL;
-    iam__setting_t *stg = IAM__D(setting, module->current_setting);
+    s = IAM_D(setting, module->current_setting);
     module->current_setting = module->current_setting->next;
-    return (iam_setting_t *)stg;
+    return s;
 }
 
-#define IAM_SETTING_REG(E, S)                           \
-    iam__setting_t *s = IAM__NEW(setting);              \
-    if (s == NULL)                                      \
-        return;                                         \
-    s->info.name = name;                                \
-    s->info.type = E;                                   \
-    s->info.max.size = S;                               \
-    s->value = ref;                                     \
-    iam__module_t *module = (iam__module_t *)handle;    \
-    iam__list_append(&module->settings, s)                              
+const char *iam_setting_to_str(iam_setting_t *s) {
+    return s->info->type->to_str(s->setting);
+}
 
-#define IAM_SETTING_FUNC(T, E)                          \
-    void iam_setting_reg_##T(iam_id_t *handle,          \
-            const char *name, T##_t *ref) {             \
-        IAM_SETTING_REG(E, 1);                          \
-    }                                                   \
-    void iam_setting_reg_##T##_arr(iam_id_t *handle,    \
-            const char *name, T##_t *ref, size_t max) { \
-        IAM_SETTING_REG(E, max);                        \
+const char *iam_setting_to_str_i(iam_setting_t *s, size_t i) {
+    return s->info->type->to_str((char *)s->setting + s->info->size * i);
+}
+
+iam_setting_t *iam_setting_reg(iam_variable_t *v, void *value) {
+    int res;
+    iam__module_t *m;
+    iam_setting_t *s = NULL;
+    if (v != NULL) {
+        s = IAM_NEW(setting);
+        if (s == NULL)
+            setting.status.init = IAM_OUT_OF_MEMORY;
+        else {
+            s->info = v;
+            s->setting = value;
+            m = (iam__module_t *)s->info->id;
+            res = iam__list_append(&m->settings, s);
+            if (res == 1) {
+                setting.status.init = IAM_OUT_OF_MEMORY;
+                return NULL;
+            }
+        } 
     }
+    return s;
+}
 
-#define float_t float
-#define ufloat_t float
-#define double_t double
-#define udouble_t double
+iam_variable_status iam_setting_set_max(iam_setting_t *s, size_t max) {
+    return iam_variable_set_max(&setting, s->info, max, &s->setting);
+}
 
-IAM_SETTING_FUNC(int8, IAM_INT8);
-IAM_SETTING_FUNC(int16, IAM_INT16);
-IAM_SETTING_FUNC(int32, IAM_INT32);
-IAM_SETTING_FUNC(int64, IAM_INT64);
-IAM_SETTING_FUNC(uint8, IAM_UINT8);
-IAM_SETTING_FUNC(uint16, IAM_UINT16);
-IAM_SETTING_FUNC(uint32, IAM_UINT32);
-IAM_SETTING_FUNC(uint64, IAM_UINT64);
-IAM_SETTING_FUNC(float, IAM_FLOAT);
-IAM_SETTING_FUNC(double, IAM_DOUBLE);
-IAM_SETTING_FUNC(ufloat, IAM_UFLOAT);
-IAM_SETTING_FUNC(udouble, IAM_UDOUBLE);
+void *iam_setting_get(iam_setting_t *s, size_t i, const iam_type_t *type) {
+    iam_variable_status st;
+    st = iam_variable_get_i_is_correct(&setting, s->info, i, &s->setting);
+    if (st == IAM_VALUE_IS_CORRECT)
+        return (char *)s->setting + s->info->size * i;
+    return NULL;
+}
+
+void *iam_setting_set(iam_setting_t *s, size_t i, const iam_type_t *type,
+        const void *value) {
+    iam_variable_status st;
+    st = iam_variable_set_i_is_correct(&setting, s->info, i, &s->setting);
+    if (st == IAM_VALUE_IS_CORRECT)
+        return (char *)s->setting + s->info->size * i;
+    return NULL;
+}
