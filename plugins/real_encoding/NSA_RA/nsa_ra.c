@@ -13,11 +13,11 @@ static iam_metadata_t info = {
     .author = "Alexander Sekunov"
 };
 
-static void generate(iam_id_t id, const float *vector, size_t k) {
+static void generate(iam_id_t id, const double *vector, size_t k) {
     puts("NSA_RA.generate()");
 }
 
-static int analyze(iam_id_t id, const float *vector, size_t k) {
+static bool analyze(iam_id_t id, const double *vector, size_t k) {
     puts("NSA_RA.analyze()");
     return 0;
 }

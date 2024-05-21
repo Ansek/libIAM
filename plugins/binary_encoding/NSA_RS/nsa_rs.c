@@ -16,7 +16,7 @@ static void generate(iam_id_t id, const char *data, size_t size) {
     puts("NSA_RS.generate()");
 }
 
-static int analyze(iam_id_t id, const char *data, size_t size) {
+static bool analyze(iam_id_t id, const char *data, size_t size) {
     puts("NSA_RS.analyze()");
     return 0;
 }

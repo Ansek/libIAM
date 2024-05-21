@@ -2,6 +2,7 @@
 // License: http://opensource.org/licenses/MIT
 
 #include "algorithm_manager.h"
+#include <string.h>
 
 iam__list_t iam__binary_algs;
 void iam__binary_algs_free(void *data);
@@ -17,6 +18,30 @@ void iam__algorithm_manager_init(void) {
 void iam__algorithm_manager_exit(void) {
     iam__list_free_act(&iam__binary_algs, iam__binary_algs_free);
     iam__list_free_act(&iam__real_algs, iam__real_algs_free);
+}
+
+void iam_real_alg_fit(const char *alg_name,
+    const double *inX, const uint8_t *inY, size_t row_n, size_t col_n) {
+    iam__node_t *p;
+    iam__real_alg_t *alg;
+    IAM__FOREACH(p, iam__real_algs) {
+        alg = IAM__D(real_alg, p);
+        if (strcmp(alg_name, alg->id->info->name) == 0 
+            && alg->real.fit != NULL)
+            alg->real.fit(inX, inY, row_n, col_n);
+    }
+}
+
+void iam_real_alg_predict(const char *alg_name,
+    const double *inX, uint8_t *outY, size_t row_n, size_t col_n) {
+    iam__node_t *p;
+    iam__real_alg_t *alg;
+    IAM__FOREACH(p, iam__real_algs) {
+        alg = IAM__D(real_alg, p);
+        if (strcmp(alg_name, alg->id->info->name) == 0 
+            && alg->real.predict != NULL)
+            alg->real.predict(inX, outY, row_n, col_n);
+    }
 }
 
 iam_binary_alg_t *iam_algorithm_reg_binary(iam_id_t id) {
@@ -79,6 +104,20 @@ IAM_API void iam_real_alg_reg_analyze(iam_real_alg_t *alg,
     alg->analyze = fn;
 	iam_logger_puts(IAM__ID(real_alg, alg), IAM_TRACE,
 		"Added analysis function (real)"); 
+}
+
+void iam_real_alg_reg_fit(iam_real_alg_t *alg,
+    iam_real_fit_fn fn) {
+    alg->fit = fn;
+	iam_logger_puts(IAM__ID(real_alg, alg), IAM_TRACE,
+		"Added fit function (real)"); 
+}
+
+void iam_real_alg_reg_predict(iam_real_alg_t *alg,
+    iam_real_predict_fn fn) {
+    alg->predict = fn;
+	iam_logger_puts(IAM__ID(real_alg, alg), IAM_TRACE,
+		"Added predict function (real)");
 }
 
 void iam__binary_algs_free(void *data) {
