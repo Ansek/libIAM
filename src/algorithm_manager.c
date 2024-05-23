@@ -121,13 +121,7 @@ void iam_real_alg_reg_predict(iam_real_alg_t *alg,
 }
 
 void iam__binary_algs_free(void *data) {
-    // Проверка
-    ((iam_binary_alg_t *)data)->generate(NULL, NULL, 0);
-    ((iam_binary_alg_t *)data)->analyze(NULL, NULL, 0); 
 }
 
 void iam__real_algs_free(void *data) {
-    // Проверка
-    ((iam_real_alg_t *)data)->generate(NULL, NULL, 0);
-    ((iam_real_alg_t *)data)->analyze(NULL, NULL, 0);
 }

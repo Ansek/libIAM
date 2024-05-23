@@ -118,7 +118,7 @@ static void dump(iam_id_t id) {
             IAM_LOG_ERR("Failed to open the file \"s\".", FILENAME);
             return;
         }
-        json_dumpf(root, f, 0);
+        json_dumpf(root, f, JSON_INDENT(2));
         fclose(f);
         has_dump = false;
     }
