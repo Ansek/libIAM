@@ -1,0 +1,2 @@
+add_subdirectory(plugin_viewer)
+add_subdirectory(python_c_api)
